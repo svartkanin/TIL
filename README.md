@@ -45,6 +45,13 @@ A list of little helpers I came across over the years
             * [User management](#user-management-1)
          * [Verify shell scripts](#verify-shell-scripts)
          * [Watch dconf changes](#watch-dconf-changes)
+         * [Terminal](#terminal)
+            * [Jumping](#jumping)
+            * [Deletion](#deletion)
+            * [Nifty tricks](#nifty-tricks)
+            * [Commands](#commands)
+         * [xargs](#xargs)
+         * [Parallel tasks](#parallel-tasks)
       * [Tools](#tools)
          * [Curl](#curl)
             * [Get own IP](#get-own-ip)
@@ -66,10 +73,12 @@ A list of little helpers I came across over the years
          * [PCAP](#pcap)
             * [Analyze dump](#analyze-dump)
          * [SSH](#ssh)
+            * [Config file](#config-file)
             * [Enable SSH port to be open](#enable-ssh-port-to-be-open)
             * [Session cache](#session-cache)
                * [Add key to cache](#add-key-to-cache)
                * [Delete session cache](#delete-session-cache)
+            * [Reverse ssh tunnel](#reverse-ssh-tunnel)
          * [Wget](#wget)
             * [Download file](#download-file)
                * [Download robots.txt](#download-robotstxt)
@@ -406,7 +415,81 @@ https://www.shellcheck.net/
 dconf watch /
 ```
 
+### Terminal
 
+#### Jumping
+To the start of a command  
+```ctrl+a```
+
+To the end of a command  
+```ctrl+e```
+
+To the beginning of current word  
+```alt+b```
+
+To the end of the current word  
+```alt+f```
+
+#### Deletion
+Single word to the left  
+```ctrl+w```
+
+Single word to the right  
+```ctrl+d```
+
+Everything on the right side  
+```ctrl+k```
+
+Everything on the left side  
+```ctrl+u```
+
+Paste back the deleted thing  
+```ctrl+y```
+
+#### Nifty tricks
+Repeat the last command  
+```!!```
+
+Change the command but keep last argument  
+```
+cat some.txt
+less !$
+```
+
+Change command but keep all arguments
+```
+head some.txt | grep "A"
+tail !*
+```
+
+#### Commands
+
+### xargs
+Create files from a list of names
+```
+xargs touch < names.txt
+```
+
+### Parallel tasks
+Run simple commans in parallel (`sudo apt install parallel`)
+```
+find . -name "*.html" | parallel mv {} web/
+```
+
+Create sequence numbers and delete all images with that sequence suffix in parallel by 16 jobs 
+```
+seq -w 0 9999 | parallel -j 16 rm pict{}.jpg
+```
+
+Create thumbnails form all images
+```
+ls *.jpg | parallel convert -geometry 120 {} thumb_{}
+```
+
+Download urls
+```
+cat urlfile | parallel "wget{} 2>errors.txt"
+```
 
 ## Tools
 
@@ -515,6 +598,17 @@ Another tool is `ngrep`
 
 ### SSH
 
+#### Config file
+The `.ssh/config` makes connections easier 
+```
+Host everest
+  Port 11000
+  hostname everest.mount.climb
+  User climber
+  ServerAliveCountMax=3
+  ServerAliveInterval=15
+```
+
 #### Enable SSH port to be open
 ```
 systemctl enable ssh
@@ -530,6 +624,11 @@ ssh-add <key>
 ##### Delete session cache
 ```
 ssh-add -D
+```
+
+#### Reverse ssh tunnel
+```
+ ssh -v -i ./id_rsa user@<remote_host> -R 22:<remote_host>:22 -fN user@<forward_conn_to>
 ```
 
 ### Wget
