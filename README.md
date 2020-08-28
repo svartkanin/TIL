@@ -79,6 +79,8 @@ A list of little helpers I came across over the years
                * [Add key to cache](#add-key-to-cache)
                * [Delete session cache](#delete-session-cache)
             * [Reverse ssh tunnel](#reverse-ssh-tunnel)
+            * [Generate Key for U2F device](#generate-key-for-u2f-device)
+            * [Exit automatically a stuck session](#exit-automatically-a-stuck-session)
          * [Wget](#wget)
             * [Download file](#download-file)
                * [Download robots.txt](#download-robotstxt)
@@ -97,6 +99,7 @@ A list of little helpers I came across over the years
          * [Grouping](#grouping)
       * [Image manipulation](#image-manipulation)
          * [Padding](#padding)
+         * [Merge multiple images together](#merge-multiple-images-together)
       * [String manipulation](#string-manipulation)
          * [Trim a string (both sides)](#trim-a-string-both-sides)
          * [Split a string at a delimiter](#split-a-string-at-a-delimiter)
@@ -631,6 +634,26 @@ ssh-add -D
  ssh -v -i ./id_rsa user@<remote_host> -R 22:<remote_host>:22 -fN user@<forward_conn_to>
 ```
 
+#### Generate Key for U2F device
+OPTION 1: This creates public and private keys tied to an U2F device. A private key on the U2F device is used to decrypt the on-disk private “key handle” when the security key is activated
+```
+ssh-keygen -t ecdsa-sk -f ~/.ssh/id_ecdsa_sk
+```
+
+OPTION 2: With a resident key the key handle is stored on the U2F device. This way, it's always on the security key when needed:
+```
+ssh-keygen -t ecdsa-sk -O resident -f ~/.ssh/id_ecdsa_sk
+# to bring the key back into memory run
+ssh-add -K
+```
+
+#### Exit automatically a stuck session
+Add the following to the `.ssh/config` to exit a stuck session
+```
+ServerAliveInterval 5
+ServerAliveCountMax 1
+```
+
 ### Wget
 
 #### Download file
@@ -730,6 +753,16 @@ sort -n | uniq -c
 Add padding to an image
 ```
 convert <original_img> -resize 1024x1024 -gravity center -background "rgb(255,255,255)" -extent 1024x1024 out.jpeg
+```
+
+### Merge multiple images together
+Vertically:  
+```
+convert image1.png image2.png image3.png -append output.png
+```
+Horizontally:  
+```
+convert image1.png image2.png image3.png -append output.png
 ```
 
 
